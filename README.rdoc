@@ -57,8 +57,6 @@ To fire up the default, built-in WEBrick server, just run:
 
 WEBrick is great for a quick test run.  To run a production website, see http://www.wagn.org/wagn_in_production.
 
-
-
 =More Resources
 
 To learn more about installation, see http://wagn.org/Installation

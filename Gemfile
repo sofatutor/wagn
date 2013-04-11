@@ -16,7 +16,8 @@ gem 'xmlscan',      '~> 0.3'
 
 gem "rubyzip",      "~> 0.9" # only required in module.  should be separated out.
 gem "airbrake",     "~> 3.1"
-
+gem 'heroku'
+gem 'aws-s3', :require => 'aws/s3'
 
 # DATABASE
 
@@ -25,14 +26,6 @@ gem "airbrake",     "~> 3.1"
 group :mysql do
   gem "mysql2", "~> 0.3"
 end
-
-group :postgres do
-  gem 'pg', '~>0.12.2'
-  # if using 1.8.7 or ree and having no luck with the above, try:
-  # gem 'postgres', '~>0.7.9.2008.01.28'
-end
-#gem 'sqlite3-ruby', :require => 'sqlite3', :group=>'sqlite'
-
 
 gem 'dalli', :group => :memcache
 

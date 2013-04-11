@@ -37,9 +37,6 @@ Watch carefully for errors!  You may need to run as a admin user (using sudo, fo
 ===3. Configure
 First, install needed config files with:
 
- rake wagn:install # production-only MySQL setup
- 
-For PostgreSQL setup, use `env ENGINE=postgres rake wagn:install` 
 For developer setup, use `env MODE=dev rake wagn:install` 
 
 Then, edit the config/database.yml file as necessary.  The default configuration works if you have password-less root access to mysql.   More about database configuration at http://www.wagn.org/database_configuration.

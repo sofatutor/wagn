@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 module Cardlib
   module Pattern
     mattr_accessor :subclasses
@@ -28,7 +29,7 @@ module Cardlib
     end
 
     def reset_patterns_if_rule saving=false
-      if is_rule?
+      if !new_card? && is_rule?
         set = left
         set.reset_patterns
         set.include_set_modules
@@ -121,12 +122,13 @@ module Cardlib
           Card.fetch(self.key_id, :skip_modules=>true).cardname
         end
 
-        def register key, opt_keys, opts={}
-          Cardlib::Pattern.register_class self, opts.delete(:index)
-          self.key = key
-          self.key_id = Wagn::Codename[key]
-          self.opt_keys = Array===opt_keys ? opt_keys : [opt_keys]
-          opts.each { |key, val| send "#{key}=", val }
+        def register key, opts={}
+          if self.key_id = Wagn::Codename[key]          
+            self.key = key
+            Cardlib::Pattern.register_class self, opts.delete(:index)
+            self.opt_keys = opts.delete(:opt_keys) || [ key.to_sym ]
+            opts.each { |key, val| send "#{key}=", val }
+          end
         end
 
         def method_key_from_opts opts
@@ -226,19 +228,19 @@ module Cardlib
     end
 
     class AllPattern < BasePattern
-      register 'all', [], :method_key=>''
+      register 'all', :opt_keys=>[], :method_key=>''
       def self.label(name)              'All cards'                end
       def self.prototype_args(anchor)   {}                         end
     end
 
     class AllPlusPattern < BasePattern
-      register 'all_plus', :all_plus, :method_key=>'all_plus', :junction_only=>true
+      register 'all_plus', :method_key=>'all_plus', :junction_only=>true
       def self.label(name)              'All "+" cards'            end
       def self.prototype_args(anchor)   {:name=>'+'}               end
     end
 
     class TypePattern < BasePattern
-      register 'type', :type
+      register 'type'
       def self.label             name;  %{All "#{name}" cards}     end
       def self.prototype_args  anchor;  {:type=>anchor}            end
       def self.pattern_applies?  card;  !!card.type_id             end
@@ -247,28 +249,28 @@ module Cardlib
     end
 
     class StarPattern < BasePattern
-      register 'star', :star, :method_key=>'star'
+      register 'star', :method_key=>'star'
       def self.label            name;   'All "*" cards'            end
       def self.prototype_args anchor;   {:name=>'*dummy'}          end
       def self.pattern_applies? card;   card.cardname.star?        end
     end
 
     class RstarPattern < BasePattern
-      register 'rstar', :rstar, :method_key=>'rstar', :junction_only=>true
+      register 'rstar', :method_key=>'rstar', :junction_only=>true
       def self.label            name;   'All "+*" cards'           end
       def self.prototype_args anchor;   { :name=>'*dummy+*dummy'}  end
       def self.pattern_applies? card;   card.cardname.rstar?       end
     end
 
     class RightPattern < BasePattern
-      register 'right', :right, :junction_only=>true, :assigns_type=>true
+      register 'right', :junction_only=>true, :assigns_type=>true
       def self.label            name;  %{All "+#{name}" cards}     end
       def self.prototype_args anchor;  {:name=>"*dummy+#{anchor}"} end
       def self.anchor_name      card;  card.cardname.tag           end
     end
 
     class LeftTypeRightNamePattern < BasePattern
-      register 'type_plus_right', [:ltype, :right], :junction_only=>true, :assigns_type=>true
+      register 'type_plus_right', :opt_keys=>[:ltype, :right], :junction_only=>true, :assigns_type=>true
       class << self
         def label name
           %{All "+#{name.to_name.tag}" cards on "#{name.to_name.left_name}" cards}
@@ -287,7 +289,7 @@ module Cardlib
     end
 
     class SelfPattern < BasePattern
-      register 'self', :name
+      register 'self', :opt_keys=>[ :name ]
       #note: does not assign type bc this causes trouble when cardtype cards have a *self set.
       def self.label            name;     %{The card "#{name}"}      end
       def self.prototype_args anchor;     { :name=>anchor }          end

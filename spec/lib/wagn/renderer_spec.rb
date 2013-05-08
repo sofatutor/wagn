@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 require File.expand_path('../../spec_helper', File.dirname(__FILE__))
 require File.expand_path('../../packs/pack_spec_helper', File.dirname(__FILE__))
 
@@ -27,7 +28,7 @@ describe Wagn::Renderer, "" do
     it "should allow for inclusion in links as in Cardtype" do
        Account.as_bot do
          Card.create! :name=>"TestType", :type=>'Cardtype', :content=>'[[/new/{{_self|linkname}}|add {{_self|name}} card]]'
-         Card.create! :name=>'TestType+*self+*content', :content=>'_self' #otherwise content overwritten by *content rule
+         Card.create! :name=>'TestType+*self+*structure', :content=>'_self' #otherwise content overwritten by *structure rule
          Wagn::Renderer.new(Card['TestType']).render_core.should == '<a class="internal-link" href="/new/TestType">add TestType card</a>'
          
        end
@@ -206,7 +207,7 @@ describe Wagn::Renderer, "" do
           r.should_not match('No Card!')
           #warn "r = #{r}"
           assert_view_select r, 'tr[class="card-slot open-rule edit-rule"]' do
-            assert_select 'input[id="success"][name="success"][type="hidden"][value="*read+*right+*input"]'
+            assert_select 'input[id="success_id"][name=?][type="hidden"][value="*read+*right+*input"]', 'success[id]'
           end
         end
       end
@@ -332,7 +333,7 @@ describe Wagn::Renderer, "" do
       Card.create! :name => "n+a", :type=>"Number", :content=>"10"
       Card.create! :name => "n+b", :type=>"Phrase", :content=>"say:\"what\""
       Card.create! :name => "n+c", :type=>"Number", :content=>"30"
-      c = Card.new :name => 'nplusarray', :content => "{{n+*plus cards+by create|array}}"
+      c = Card.new :name => 'nplusarray', :content => "{{n+*children+by create|array}}"
       Wagn::Renderer.new(c)._render( :core ).should == %{["10", "say:\\"what\\"", "30"]}
     end
 
@@ -352,7 +353,7 @@ describe Wagn::Renderer, "" do
 
   context "Content rule" do
     it "closed_content is rendered as title + raw" do
-      template = Card.new(:name=>'A+*right+*content', :content=>'[[link]] {{inclusion}}')
+      template = Card.new(:name=>'A+*right+*structure', :content=>'[[link]] {{inclusion}}')
       Wagn::Renderer.new(template)._render(:closed_content).should ==
         '<a href="/Basic" class="cardtype default-type">Basic</a> : [[link]] {{inclusion}}'
     end
@@ -374,14 +375,14 @@ describe Wagn::Renderer, "" do
 
     it "is used in new card forms when hard" do
       Account.as :joe_admin do
-        content_card = Card.create!(:name=>"Cardtype E+*type+*content",  :content=>"{{+Yoruba}}" )
+        content_card = Card.create!(:name=>"Cardtype E+*type+*structure",  :content=>"{{+Yoruba}}" )
         help_card    = Card.create!(:name=>"Cardtype E+*type+*add help", :content=>"Help me dude" )
         card = Card.new(:type=>'Cardtype E')
 
         mock(card).rule_card(:thanks, {:skip_modules=>true}).returns(nil)
         mock(card).rule_card(:autoname).returns(nil)
         mock(card).rule_card(:default,  {:skip_modules=>true}   ).returns(Card['*all+*default'])
-        mock(card).rule_card(:add_help, {:fallback=>:edit_help} ).returns(help_card)
+        mock(card).rule_card(:add_help, {:fallback=>:help} ).returns(help_card)
         rendered = Wagn::Renderer::Html.new(card).render_new
         #warn "rendered = #{rendered}"
         assert_view_select rendered, 'fieldset' do
@@ -392,7 +393,7 @@ describe Wagn::Renderer, "" do
 
     it "should be used in edit forms" do
       Account.as_bot do
-        config_card = Card.create!(:name=>"templated+*self+*content", :content=>"{{+alpha}}" )
+        config_card = Card.create!(:name=>"templated+*self+*structure", :content=>"{{+alpha}}" )
       end
       @card = Card.fetch('templated')# :name=>"templated", :content => "Bar" )
       @card.content = 'Bar'
@@ -465,7 +466,7 @@ describe Wagn::Renderer, "" do
         #pending
         #I can't get this working.  I keep getting this url_for error -- from a line that doesn't call url_for
         card = Card.create!(:name=>'Big Bad Wolf', :type=>'Account Request')
-        assert_view_select Wagn::Renderer.new(card).render(:core), 'div[class="invite-links help instruction"]'
+        assert_view_select Wagn::Renderer.new(card).render(:core), 'div[class="invite-links"]'
       end
     end
 

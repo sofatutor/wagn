@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 require_dependency 'chunks/chunk'
 
 module Chunks
@@ -44,13 +45,10 @@ module Chunks
           @options[:style] = @configs.inject({}) do |styles, pair| key, value = pair
             @options.key?(key.to_sym) ? @options[key.to_sym] = value : styles[key] = value
             styles
-          end.
-            map { |style_name,style| CGI.escapeHTML("#{style_name}:#{style};") } * ''
-
-          [:hide, :show].each do |disp|
-            @options[disp] = @options[disp].split(/[\s\,]+/) if @options[disp]
-          end
-        
+          end.map do |style_name,style|
+            CGI.escapeHTML "#{style_name}:#{style};"
+          end * ''
+            
           :standard_inclusion
       end
       

@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 require_dependency 'json'
 
 module Wagn
@@ -8,8 +9,8 @@ module Wagn
 
     SETTING_GROUPS = {
       "Permission"    => [ :create, :read, :update, :delete, :comment ],
-      "Look and Feel" => [ :default, :content, :layout, :table_of_contents ],
-      "Communication" => [ :add_help, :edit_help, :send, :thanks ],
+      "Look and Feel" => [ :default, :structure, :layout, :table_of_contents ],
+      "Communication" => [ :help, :add_help, :send, :thanks ],
       POINTER_KEY     => [ :options, :options_label, :input ],
       "Other"         => [ :autoname, :accountable, :captcha ]
     }
@@ -88,7 +89,7 @@ module Wagn
     end
 
     define_view :closed_content, :type=>'setting' do |args|
-      %{<div class="instruction">#{process_content_object "{{+*right+*edit help}}"}</div>}
+      %{<div class="instruction">#{process_content_object "{{+*right+*help}}"}</div>}
     end
 
   end

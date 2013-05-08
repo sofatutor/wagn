@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 module Wagn
   module Set::Type
    module Set
@@ -19,7 +20,11 @@ module Wagn
         end * "\n" )
       end.compact * ''
       %{
-        <h2 class="set-label">#{ card.label }</h2>
+        #{
+          unless args[:unlabeled]
+            %{ <h2 class="set-label">#{ card.label }</h2> }
+          end
+        }
         #{ content_tag('table', :class=>'set-rules') { body } }
       }
     end
@@ -47,7 +52,7 @@ module Wagn
               #{link_to_view '', :template_link, :class=>'slotter ui-icon ui-icon-closethick template-editor-close'}
             </div>
             <div class="card-body">
-              #{ _render_core }
+              #{ _render_core args.merge(:unlabeled=>true) }
             </div>
           </div>
           <div class="template-editor-right">}}</div> 
@@ -95,16 +100,10 @@ module Wagn
       end
 
       def setting_codes_by_group
-        is_pointer = Card::PointerID == (
-          if templt = fetch(:trait=>:content) || fetch(:trait=>:default)
-            templt.type_id
-          elsif right_id == Card::TypeID
-            left_id
-          else
-            trunk(:new=>{}).type_id
-          end
-        )
+
+        is_pointer = prototype.type_id == Card::PointerID
         Setting::SETTING_GROUPS.reject { |k,v| !is_pointer && k == Setting::POINTER_KEY }
+#        Setting::SETTING_GROUPS
       end
 
       def prototype

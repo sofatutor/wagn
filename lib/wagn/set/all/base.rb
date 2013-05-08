@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 
 module Wagn
   module Set::All::Base
@@ -8,7 +9,7 @@ module Wagn
     ### ---- Core renders --- Keep these on top for dependencies
 
     define_view :show, :perms=>:none  do |args|
-      render( args[:view] || :core )
+      render( ( args[:view] || :core ), args )
     end
 
     define_view :raw do |args|
@@ -23,6 +24,8 @@ module Wagn
     define_view :titled   do |args|  card.name + "\n\n" + _render_core(args)      end
                                                                                   
     define_view :name,     :perms=>:none  do |args|  card.name                    end
+    define_view :codename, :perms=>:none  do |args|  card.codename.to_s           end
+      
     define_view :key,      :perms=>:none  do |args|  card.key                     end
     define_view :id,       :perms=>:none  do |args|  card.id                      end
     define_view :linkname, :perms=>:none  do |args|  card.cardname.url_key        end
@@ -68,11 +71,11 @@ module Wagn
     end
 
     define_view :bad_address, :perms=>:none, :error_code=>404 do |args|
-      %{ Bad Address }
+      %{ 404: Bad Address }
     end
 
     define_view :no_card, :perms=>:none, :error_code=>404 do |args|
-      %{ No Card! }
+      %{ 404: No Card! }
     end
 
     define_view :too_deep, :perms=>:none do |args|
